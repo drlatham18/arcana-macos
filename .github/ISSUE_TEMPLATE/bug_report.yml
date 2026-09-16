@@ -1,0 +1,22 @@
+name: Report a problem
+description: Help us reproduce an Arcana issue without sharing private game data.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "This report is public. Do not attach raw Arena logs, account details, private notes, or personal information."
+  - type: input
+    id: version
+    attributes: {label: Arcana version, placeholder: '1.3'}
+    validations: {required: true}
+  - type: input
+    id: mac
+    attributes: {label: Mac and macOS, placeholder: 'Apple Silicon or Intel, macOS version'}
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes: {label: Steps to reproduce, description: 'What did you do, what happened, and what did you expect?'}
+    validations: {required: true}
+  - type: textarea
+    id: context
+    attributes: {label: Additional context, description: 'Is Detailed Logs enabled? Is the connection shown as active? No raw logs, please.'}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://drlatham18.github.io/arcana-macos/sitemap.xml
