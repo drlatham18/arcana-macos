@@ -1,6 +1,6 @@
 # Third-party notices
 
-Arcana is an unofficial companion. Magic: The Gathering, MTG Arena, card names, rules text, and related trademarks belong to Wizards of the Coast LLC. The bundled Comprehensive Rules and official guides retain their original ownership; inclusion does not imply affiliation or endorsement. Current official rules: https://magic.wizards.com/en/rules.
+Arcana is an unofficial companion. Magic: The Gathering, MTG Arena, card names, rules text, and related trademarks belong to Wizards of the Coast LLC. The release bundles original learning summaries. It does not redistribute the full Comprehensive Rules or scraped official guides. Users may import their own rules text for private local search; this does not imply affiliation or endorsement. Current official rules: https://magic.wizards.com/en/rules.
 
 The original companion core was supplied by the project owner from `drlatham18/mtgo-rules-companion`. This source package includes a modified Mac edition of that code. It excludes personal game logs, learned Windows screen maps, and private notes.
 

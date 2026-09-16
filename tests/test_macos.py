@@ -79,7 +79,7 @@ class EngineProtocolTests(unittest.TestCase):
         demo=self.call('demo',enabled=True);self.assertTrue(demo['demo']);self.assertEqual(demo['state']['my_life'],18)
         self.assertEqual(demo['stats']['games'],0)
         self.assertIn('DEMO',self.call('ask',query='What am I allowed to do?')['answer'])
-        self.assertEqual(self.call('search',query='702.2')['hits'][0]['locator'],'702.2')
+        self.assertTrue(self.call('search',query='priority')['hits'])
         self.call('ask',query='Remember that I prefer blue control decks')
         self.assertIn('prefer blue',self.call('ask',query='blue control')['answer'])
         self.assertEqual(self.call('snapshot')['notes_count'],1)
@@ -95,6 +95,55 @@ class EngineProtocolTests(unittest.TestCase):
         again=self.call('configure',key='log_path',path=str(log))
         self.assertEqual(again['stats']['games'],1)
         self.assertTrue(list((self.data/'history').glob('*.json')))
+    def test_imported_rules_search_is_local_and_removable(self):
+        rules=self.data/'my-rules.txt'
+        rules.write_text('702.2 A synthetic imported rule for the test.\n702.3 A second fixture rule.\n')
+        self.call('configure',key='rules_path',path=str(rules))
+        hit=self.call('search',query='702.2')['hits'][0]
+        self.assertEqual(hit['locator'],'702.2')
+        self.assertIn('synthetic imported',hit['text'])
+        self.call('configure',key='rules_path',path='')
+        self.assertFalse(self.call('search',query='702.2')['hits'])
+        self.assertTrue(rules.is_file())
+
+    def test_recording_mode_withholds_coaching_but_practice_can_enable_it(self):
+        log=self.data/'Player.log'
+        log.write_text(_gre_line(_state(3,'Phase_Main1','',[],full=True))+'\n')
+        result=self.call('configure',key='log_path',path=str(log))
+        self.assertTrue(result['state']['in_match'])
+        self.assertFalse(result['coaching'])
+        self.assertFalse(result['analysis'].get('suggestion'))
+        self.assertFalse(result['analysis'].get('options'))
+        self.assertIn('noncompetitive practice',self.call('ask',query='What should I do?')['answer'])
+        self.assertTrue(self.call('practice')['coaching'])
+        self.assertFalse(self.call('practice')['coaching'])
+
+    def test_background_records_consecutive_games_with_distinct_timelines(self):
+        import time
+        log=self.data/'Player.log'
+        self.call('practice')
+        messages=[]
+        for number,turn in [(1,3),(2,5),(3,7)]:
+            begin=_state(turn,'Phase_Main1','',[],full=True)
+            end=_game_over(won=number!=2)
+            for message in [begin,end]:
+                message['gameStateMessage']['gameInfo']['gameNumber']=number
+            messages.extend([begin,end])
+        log.write_text(_gre_line(*messages)+'\n')
+        # No configure/poll command: the background watcher must discover all games.
+        deadline=time.monotonic()+8
+        while time.monotonic()<deadline:
+            result=self.call('snapshot')
+            if result['stats']['games']==3:break
+            time.sleep(.25)
+        self.assertEqual(result['stats']['games'],3)
+        self.assertEqual(result['stats']['wins'],2)
+        self.assertFalse(result['practice'])
+        for row in result['history']:
+            self.assertEqual(row['timeline'][0]['turn'],{1:3,2:5,3:7}[row['game_number']])
+        again=self.call('configure',key='log_path',path=str(log))
+        self.assertEqual(again['stats']['games'],3)
+
     def test_invalid_database_and_unknown_action_return_errors(self):
         self.process.stdin.write(json.dumps({'id':2,'action':'configure','key':'database_path','path':'/nonexistent'})+'\n');self.process.stdin.flush()
         response=json.loads(self.process.stdout.readline());self.assertFalse(response['ok'])

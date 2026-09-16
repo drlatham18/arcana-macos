@@ -38,6 +38,8 @@ class Companion:
         self.settings = read_json(SETTINGS, {})
         self.demo = False
         self.paused = False
+        self.practice = False
+        self.timelines = {}
         self.demo_step = 0
         self.state = arena_state.ArenaGameState(reason='Looking for Arena…')
         self.error = ''
@@ -59,6 +61,7 @@ class Companion:
             else:
                 os.environ.pop(env, None)
         arena_cards._located = None
+        knowledge.EXTRA_RULES_FILE = Path(self.settings['rules_path']) if self.settings.get('rules_path') else None
 
     def observe(self, state):
         self.reviewer.observe(state)
@@ -69,10 +72,13 @@ class Companion:
             self.timeline = []
             self.last_signature = None
             self.last_game = game
+            self.timelines[game] = self.timeline
+            while len(self.timelines) > 100:
+                self.timelines.pop(next(iter(self.timelines)))
         signature = (state.turn_number, state.phase, state.step, state.my_life, state.opponent_life)
         if signature != self.last_signature:
             self.timeline.append({'turn': state.turn_number, 'phase': arena_state.describe_phase(state.phase, state.step), 'you': state.my_life, 'opponent': state.opponent_life})
-            self.timeline = self.timeline[-100:]
+            del self.timeline[:-100]
             self.last_signature = signature
 
     def poll(self):
@@ -89,7 +95,8 @@ class Companion:
                     row['counts'] = review.counts()
                     identity = f'{review.match_id}:{review.game_number}' if review.match_id else f'{review.finished_at}:{review.game_number}'
                     row['id'] = hashlib.sha256(identity.encode()).hexdigest()[:24]
-                    row['timeline'] = list(self.timeline)
+                    row['timeline'] = list(self.timelines.get((review.match_id, review.game_number), []))
+                    self.practice = False
                     atomic_json(DATA / 'history' / (row['id'] + '.json'), row)
             except Exception as exc:
                 self.error = f'Arena could not be read: {type(exc).__name__}: {exc}'
@@ -109,7 +116,9 @@ class Companion:
         game['log_path'] = str(state.log_path) if state.log_path else ''
         game.update(my_turn=state.my_turn, waiting_on_me=state.waiting_on_me, phase_label=arena_state.describe_phase(state.phase,state.step), summary=state.summary)
         database = arena_cards.find_card_database()
-        explanation = offline.explain_visible_state('MTGA', '', '', arena=state)
+        coaching = self.demo or self.practice
+        study_state = state if coaching or not state.in_match else arena_state.ArenaGameState(reason='Background recording is active. Coaching is for noncompetitive practice only.')
+        explanation = offline.explain_visible_state('MTGA', '', '', arena=study_state)
         history = self.reviews()
         recent = history[:20]
         wins = sum('won' in r.get('result','').lower() for r in recent)
@@ -118,10 +127,10 @@ class Companion:
             modified = state.log_path.stat().st_mtime if state.log_path else None
         except OSError:
             modified = None
-        return {'analysis':{**analyze(state), **move_choices(state)},'connection':{'available':self.state.available,'log_path':str(self.state.log_path or '')},'state':game,'demo':self.demo,'paused':self.paused,'demo_step':self.demo_step,'error':self.error,
+        return {'practice':self.practice, 'coaching':coaching, 'analysis':{**analyze(study_state), **move_choices(study_state)},'connection':{'available':self.state.available,'log_path':str(self.state.log_path or '')},'state':game,'demo':self.demo,'paused':self.paused,'demo_step':self.demo_step,'error':self.error,
             'explanation':asdict(explanation),'last_poll':self.last_poll,'log_modified':modified,
             'database':str(database) if database else '', 'library_count':self.library_count,
-            'knowledge_date':'August 7, 2026', 'settings':self.settings,
+            'knowledge_date':Path(self.settings['rules_path']).name if self.settings.get('rules_path') and Path(self.settings['rules_path']).is_file() else 'Original study guides · September 2026', 'settings':self.settings,
             'history':history,'stats':{'games':len(history),'wins':wins,'losses':losses},
             'timeline':[] if self.demo else self.timeline,'data_dir':str(DATA),
             'notes_count':memory.memory_stats()[1]}
@@ -129,6 +138,9 @@ class Companion:
     def request(self, command):
         action = command.get('action','snapshot')
         if action == 'snapshot':
+            return self.snapshot()
+        if action == 'practice':
+            self.practice = not self.practice
             return self.snapshot()
         if action == 'demo':
             self.demo = bool(command.get('enabled', not self.demo))
@@ -141,7 +153,7 @@ class Companion:
             return self.snapshot()
         if action == 'configure':
             key = command.get('key')
-            if key not in ('log_path','database_path'):
+            if key not in ('log_path','database_path','rules_path'):
                 raise ValueError('Unknown setting')
             value = command.get('path','')
             if value and not Path(value).is_file():
@@ -153,9 +165,16 @@ class Companion:
                     db._connection.execute('SELECT LocId, Loc, Formatted FROM Localizations_enUS LIMIT 1')
                 finally:
                     db.close()
+            if key == 'rules_path' and value:
+                file = Path(value)
+                if file.stat().st_size > 8_000_000 or not any(re.match(r'^\d{3}\.\d+', line) for line in file.read_text(encoding='utf-8-sig', errors='replace').splitlines()):
+                    raise ValueError('Choose a Comprehensive Rules text file from Wizards, up to 8 MB.')
             self.settings[key] = value
             self.apply_settings()
             atomic_json(SETTINGS,self.settings)
+            if key == 'rules_path':
+                self.library_count, _ = knowledge.build_index(force=True)
+                return self.snapshot()
             self.reviewer = match_review.MatchReviewer()
             match_review.REVIEWER = self.reviewer
             self.reader = arena_state.ArenaLogReader(self.observe)
@@ -181,7 +200,12 @@ class Companion:
             state = self.demo_state() if self.demo else self.state
             if not self.demo and (self.paused or (state.log_path and time.time()-state.log_path.stat().st_mtime>120)):
                 state = arena_state.ArenaGameState(reason='The game feed is paused or has not updated recently. Resume watching and check Arena before using live guidance.')
+            recording_only = state.in_match and not (self.demo or self.practice)
+            if recording_only:
+                state = arena_state.ArenaGameState(reason='Live coaching is off. Recording for postgame study continues.')
             answer = offline.answer_question(query,'MTGA','','',arena=state)
+            if recording_only:
+                answer = 'Postgame recording is active. Live coaching is for noncompetitive practice only; enable Practice coaching in Connection for a practice game.\n\n' + answer
             related = memory.recall(query,2)
             if related:
                 answer += '\n\nYour personal notes (not official rules):\n'+'\n'.join('• '+n.note for n in related)

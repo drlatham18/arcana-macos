@@ -261,12 +261,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         guard message.frameInfo.isMainFrame,let body=message.body as? [String:Any],let action=body["action"] as? String else{return}
         let id=body["id"]
         if action=="ready" { ready=true;let pending=queued;queued=[];pending.forEach{deliver($0)};return }
-        if action=="choose_log" || action=="choose_database" {
+        if action=="choose_log" || action=="choose_database" || action=="choose_rules" {
             let panel=NSOpenPanel();panel.canChooseDirectories=false;panel.allowsMultipleSelection=false
-            panel.message=action=="choose_log" ? "Choose Arena’s Player.log. Arcana reads it without changing it." : "Choose Arena’s Raw_CardDatabase_….mtga file."
+            panel.message=action=="choose_rules" ? "Choose your downloaded Wizards Comprehensive Rules .txt file. Arcana indexes it locally." : action=="choose_log" ? "Choose Arena’s Player.log. Arcana reads it without changing it." : "Choose Arena’s Raw_CardDatabase_….mtga file."
             panel.beginSheetModal(for:window) { response in
                 guard response == .OK,let url=panel.url else {self.reply(id,result:["cancelled":true]);return}
-                self.send(["id":id ?? 0,"action":"configure","key":action=="choose_log" ? "log_path":"database_path","path":url.path])
+                self.send(["id":id ?? 0,"action":"configure","key":action=="choose_rules" ? "rules_path" : action=="choose_log" ? "log_path":"database_path","path":url.path])
             };return
         }
         if action=="export" {

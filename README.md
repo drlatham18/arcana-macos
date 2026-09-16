@@ -1,20 +1,20 @@
 # Arcana for macOS
 
-**[Download the Mac app](https://github.com/drlatham18/arcana-macos/releases/latest)** · [Direct download: Arcana 1.2](https://github.com/drlatham18/arcana-macos/releases/download/v1.2.0/Arcana-1.2-universal.dmg)
+**[Download the Mac app](https://github.com/drlatham18/arcana-macos/releases/latest)** · [Direct download: Arcana 1.3](https://github.com/drlatham18/arcana-macos/releases/download/v1.3.0/Arcana-1.3-universal.dmg)
 
-This repository contains the Arcana 1.2 source, native Mac shell, offline engine, tests, and build scripts. Packaged installers are under Releases.
+This repository contains the Arcana 1.3 source, native Mac shell, offline engine, tests, and build scripts. Packaged installers are under Releases.
 
 A self-contained, offline Magic: The Gathering Arena companion. Includes a compact floating analysis window, a full battlefield dashboard, rules search, personal notes, and automatic post-game reviews.
 
 ## Install and play
 
-1. Open `Arcana-1.2-universal.dmg` and drag **Arcana** into **Applications**. Or unzip the app archive and move Arcana.app into Applications.
+1. Open `Arcana-1.3-universal.dmg` and drag **Arcana** into **Applications**. Or unzip the app archive and move Arcana.app into Applications.
 2. Open Arcana. It includes its own runtime; Python, Homebrew, an API key, and a subscription are not needed.
 3. In Arena, enable **Settings → View Account → Detailed Logs (Plugin Support)**. Restart Arena and play a game.
 4. Arcana normally finds the game log and card database automatically. Use **Connection** to select the files if your installation is elsewhere.
 5. Click **Compact** to collapse to a 360 × 520 floating window. Resize it as small as 300 × 280, drag it beside the game, and expand with the upper-right button. **Command-Shift-M** toggles between the two views. The arrow toggles whether it floats above other windows. The ◎ button toggles Follow Arena, enabled by default. Bringing Arena forward automatically opens the compact companion; it follows the game across desktops, full screen, and displays without taking keyboard focus. It sits beside the game when space permits, otherwise inside its right edge. Drag it to adjust its position. Closing the panel pauses automatic showing until you reopen Arcana.
 
-The compact view puts **If you want one action** first, followed by numbered move options with an **If you choose this** explanation. Board details expand below the choices. Suggestions are simple starting points, not predictions of the strongest play. New decisions return the panel to the top; routine refreshes preserve your place. Stale feeds hide the suggestion and label the old options.
+In permitted noncompetitive practice, the compact view puts **If you want one action** first, followed by numbered move options with an **If you choose this** explanation. Board details expand below the choices. Suggestions are simple starting points, not predictions of the strongest play. New decisions return the panel to the top; routine refreshes preserve your place. Stale feeds hide the suggestion and label the old options.
 
 The compact view changes with the phase: incoming attackers and available defenders during blocking, creatures ready to attack during attacking, stack contents, and timing options when you have priority. It distinguishes visible candidates from confirmed legal plays.
 
@@ -24,7 +24,7 @@ Try **Explore demo** to inspect sample game states without Arena. Sample data is
 
 ## Sharing
 
-Send **Arcana-1.2-universal.dmg** or **Arcana-1.2-universal.zip** to another Mac user. Both Apple Silicon and Intel are included; macOS 13 or newer is required. The build was run on Apple Silicon; the Intel launcher and runtime are included but have not been tested on physical Intel hardware.
+Send **Arcana-1.3-universal.dmg** or **Arcana-1.3-universal.zip** to another Mac user. Both Apple Silicon and Intel are included; macOS 13 or newer is required. The build was run on Apple Silicon; the Intel launcher and runtime are included but have not been tested on physical Intel hardware.
 
 This build is **ad-hoc signed, not Apple-notarized**. A recipient may see an unidentified-developer warning. If they trust their copy, Apple's documented per-app opening flow is **System Settings → Privacy & Security → Open Anyway**, after attempting to open it. No system-wide security setting needs to be disabled. See https://support.apple.com/en-us/102445.
 
@@ -34,7 +34,11 @@ Sharing the app or source archive does not include personal data. Notes, prefere
 
 ## Rules and limitations
 
-The bundled Comprehensive Rules snapshot is dated **August 7, 2026**, with Arena guides from the original project. The library is a dated offline snapshot; it is not an automatically updated source of bans, prices, or current card changes. Use **Official rules** to reach Wizards' current source.
+Arcana is a **learning tool and must not be used for assistance during competitive, ranked, tournament, or prize-bearing matches**. Live coaching starts off. Enable it in Connection only for permitted noncompetitive practice; it turns off again after a recorded game ends or the app restarts. This is a usage restriction, not a claim of Wizards approval.
+
+Background postgame recording works independently of practice coaching. Leave Arcana watching; closing its window keeps the watcher active in the menu bar. Every completed game observed in the log receives a local review. Arcana cannot reconstruct information Arena never logged, and quitting or pausing stops capture.
+
+The release includes original learning guides and links to official sources. For exact official rule-number lookup, download the current Comprehensive Rules text from [Wizards](https://magic.wizards.com/en/rules) and choose **Connection → Import rules text**. The file is indexed privately on your Mac. The installer does not redistribute the complete rules or scraped official articles.
 
 Arcana uses a rule-based engine and local search, not a general-purpose AI model. Reviews use limited heuristics and cannot evaluate all complex card interactions or hidden information. Unknown rules text prevents confident combat counterfactuals. A move receiving no criticism is not necessarily optimal. Opponent hand contents are not inferred.
 
@@ -73,6 +77,10 @@ Original core: https://github.com/drlatham18/mtgo-rules-companion at commit `570
 
 ## Validation
 
-52 automated tests cover the existing Arena reader/reviewer plus the Mac paths, log rotation and partial writes, read-only database access, service protocol, demo isolation, saved notes, review persistence, exact rule-number lookup, compact combat analysis, and move-choice presentation. The packaged app was visually exercised for launch, demo switching, chat, search, connection, collapse, and expansion. Version 1.1 adds seven native placement checks for side placement, full screen, multiple display coordinates, dragged offsets, and keeping the companion on screen. Arena relaunch was checked on this Mac: Arcana automatically switched into its floating compact panel. Code signatures and distribution checksums were verified.
+55 automated tests cover the existing Arena reader/reviewer plus the Mac paths, log rotation and partial writes, read-only database access, service protocol, demo isolation, saved notes, review persistence, exact rule-number lookup, compact combat analysis, and move-choice presentation. The previous packaged app was visually exercised for launch, demo switching, chat, search, connection, collapse, and expansion. Version 1.1 adds seven native placement checks for side placement, full screen, multiple display coordinates, dragged offsets, and keeping the companion on screen. Arena relaunch was checked on this Mac: Arcana automatically switched into its floating compact panel. Code signatures and distribution checksums were verified.
 
 See `THIRD_PARTY_NOTICES.md` for attribution.
+
+## Free fan content
+
+Arcana is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC. This is an attribution notice, not a representation of individual approval. [Wizards Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy).
