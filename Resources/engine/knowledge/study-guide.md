@@ -85,3 +85,15 @@ Official rule references: formats, standard, alchemy, historic, timeless, explor
 Draft is Limited: select cards from rotating packs, then build a deck of at least 40 cards. Arena offers multiple draft queues whose opponents, match structure, entry, and rewards differ.
 
 Official rule references: draft, limited, minimum 40.
+
+## Deathtouch
+
+A creature damaged by a source with deathtouch can be destroyed even when that damage is smaller than its toughness. Indestructible, prevention, and other effects can change the result. For current wording, check official rule 702.2.
+
+## Ward
+
+Ward triggers when an opponent targets the permanent. The targeting spell or ability is normally countered unless the ward cost is paid. This is different from hexproof, which prevents that opponent from selecting the protected permanent as a target in the first place. Check current official rule 702.21 and the specific card.
+
+## Trample
+
+Trample changes how an attacking creature can assign combat damage. After the requirements for assigning lethal damage to blockers are satisfied, excess can go to the player or permanent being attacked. Card effects and the current combat-damage rules can affect this choice. Check official rule 702.19.
