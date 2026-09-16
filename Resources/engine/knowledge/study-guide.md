@@ -85,4 +85,3 @@ Official rule references: formats, standard, alchemy, historic, timeless, explor
 Draft is Limited: select cards from rotating packs, then build a deck of at least 40 cards. Arena offers multiple draft queues whose opponents, match structure, entry, and rewards differ.
 
 Official rule references: draft, limited, minimum 40.
-

@@ -83,7 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         NSApp.mainMenu = menu
     }
     @objc func about() {
-        let alert=NSAlert();alert.messageText="Arcana 1.2";alert.informativeText="Your offline MTG Arena companion for macOS.\n\nLive board • Rules library • Match reviews\nBuilt from your MTGA / MTGO Rules Companion.\n\nUnofficial fan software; not affiliated with Wizards of the Coast."
+        let alert=NSAlert();alert.messageText="Arcana 1.3";alert.informativeText="Your offline MTG Arena companion for macOS.\n\nLive board • Rules library • Match reviews\nBuilt from your MTGA / MTGO Rules Companion.\n\nUnofficial fan software; not affiliated with Wizards of the Coast."
         alert.runModal()
     }
     @objc func showWindow() {
