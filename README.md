@@ -1,4 +1,4 @@
-# Arcana for macOS
+# Arcana — Free MTG Arena Companion for Mac
 
 **[Arcana website](https://drlatham18.github.io/arcana-macos/)** · **[Download the Mac app](https://github.com/drlatham18/arcana-macos/releases/latest)** · [Direct download: Arcana 1.3](https://github.com/drlatham18/arcana-macos/releases/download/v1.3.0/Arcana-1.3-universal.dmg)
 
