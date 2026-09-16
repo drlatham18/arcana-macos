@@ -16,6 +16,12 @@ def main():
 
 Drag Arcana into Applications, then open it.
 
+LEARNING TOOL
+Do not use live coaching in competitive, ranked, tournament, or prize matches.
+Background postgame recording remains available for every logged game.
+Coaching defaults off; enable it only for permitted noncompetitive practice.
+Import your own Wizards rules text in Connection for offline rules search.
+
 COMPACT COMPANION
 Click Compact to collapse to a small floating analysis window.
 Use the expand button to restore the full app.
@@ -45,14 +51,14 @@ No Python installation, account, subscription, or API key is required.
 
 Unofficial MTG Arena companion. Not affiliated with Wizards of the Coast.
 ''',encoding='utf-8')
-    subprocess.run(['ditto','-c','-k','--sequesterRsrc','--keepParent',str(app),str(DIST/'Arcana-1.2-universal.zip')],check=True)
-    with zipfile.ZipFile(DIST/'Arcana-1.2-source.zip','w',zipfile.ZIP_DEFLATED) as output:
+    subprocess.run(['ditto','-c','-k','--sequesterRsrc','--keepParent',str(app),str(DIST/'Arcana-1.3-universal.zip')],check=True)
+    with zipfile.ZipFile(DIST/'Arcana-1.3-source.zip','w',zipfile.ZIP_DEFLATED) as output:
         for path in ROOT.rglob('*'):
             relative=path.relative_to(ROOT)
             if any(x in {'vendor','dist','build','__pycache__','.cache','data','.git'} for x in relative.parts):continue
             if path.is_file() and path.suffix!='.pyc':output.write(path,Path('arcana-macos')/relative)
-    subprocess.run(['hdiutil','create','-volname','Arcana','-srcfolder',str(stage),'-ov','-format','UDZO',str(DIST/'Arcana-1.2-universal.dmg')],check=True)
-    files=sorted(DIST.glob('Arcana-1.2-*'))
+    subprocess.run(['hdiutil','create','-volname','Arcana','-srcfolder',str(stage),'-ov','-format','UDZO',str(DIST/'Arcana-1.3-universal.dmg')],check=True)
+    files=sorted(DIST.glob('Arcana-1.3-*'))
     (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in files if p.is_file()))
     print('Ready to share:',*[str(p) for p in files],sep='\n')
 if __name__=='__main__':main()

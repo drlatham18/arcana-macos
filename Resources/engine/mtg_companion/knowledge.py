@@ -11,6 +11,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 KNOWLEDGE_DIR = PROJECT_ROOT / "knowledge"
 RULES_GLOB = "MagicCompRules-*.txt"
+EXTRA_RULES_FILE: Path | None = None
 INDEX_PATH = PROJECT_ROOT / ".cache" / "knowledge.sqlite3"
 
 _RULE_LINE = re.compile(r"^(\d{3}(?:\.\d+[a-z]?)?)[.]?\s+(.+)$")
@@ -33,6 +34,8 @@ class KnowledgeHit:
 def source_files() -> list[Path]:
     rules = sorted(PROJECT_ROOT.glob(RULES_GLOB), reverse=True)
     guides = sorted(KNOWLEDGE_DIR.rglob("*.md")) + sorted(KNOWLEDGE_DIR.rglob("*.txt"))
+    if EXTRA_RULES_FILE and EXTRA_RULES_FILE.is_file():
+        rules.insert(0, EXTRA_RULES_FILE)
     return [path for path in rules + guides if path.is_file()]
 
 
@@ -40,7 +43,7 @@ def _fingerprint(paths: list[Path]) -> str:
     digest = hashlib.sha256()
     for path in paths:
         stat = path.stat()
-        digest.update(str(path.relative_to(PROJECT_ROOT)).encode())
+        digest.update(str(path.resolve()).encode())
         digest.update(f"{stat.st_size}:{stat.st_mtime_ns}".encode())
     return digest.hexdigest()
 
@@ -104,7 +107,7 @@ def _markdown_chunks(path: Path):
 
 def iter_chunks(paths: list[Path] | None = None):
     for path in paths or source_files():
-        if path.name.startswith("MagicCompRules-"):
+        if path == EXTRA_RULES_FILE or path.name.startswith("MagicCompRules-"):
             yield from _rule_chunks(path)
         else:
             yield from _markdown_chunks(path)

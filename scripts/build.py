@@ -33,7 +33,7 @@ def main():
   shutil.copytree(ROOT/'vendor'/arch/'python',RES/'runtime'/arch/'python',symlinks=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
   run('xcrun','swiftc','-O','-swift-version','5','-target',f'{arch}-apple-macos13.0','-module-cache-path',str(ROOT/'build/module-cache'),str(ROOT/'Sources/Arcana.swift'),str(ROOT/'Sources/ArenaPlacement.swift'),'-framework','Cocoa','-framework','WebKit','-o',str(ROOT/'build'/f'Arcana-{arch}'))
  run('lipo','-create',str(ROOT/'build/Arcana-arm64'),str(ROOT/'build/Arcana-x86_64'),'-output',str(APP/'Contents/MacOS/Arcana'))
- info={'CFBundleName':'Arcana','CFBundleDisplayName':'Arcana','CFBundleIdentifier':'com.drlatham.arcana','CFBundleExecutable':'Arcana','CFBundlePackageType':'APPL','CFBundleShortVersionString':'1.2','CFBundleVersion':'3','LSMinimumSystemVersion':'13.0','NSHighResolutionCapable':True,'CFBundleIconFile':'Arcana','NSHumanReadableCopyright':'Arcana · Unofficial MTG Arena companion. Magic: The Gathering is a trademark of Wizards of the Coast.'}
+ info={'CFBundleName':'Arcana','CFBundleDisplayName':'Arcana','CFBundleIdentifier':'com.drlatham.arcana','CFBundleExecutable':'Arcana','CFBundlePackageType':'APPL','CFBundleShortVersionString':'1.3','CFBundleVersion':'4','LSMinimumSystemVersion':'13.0','NSHighResolutionCapable':True,'CFBundleIconFile':'Arcana','NSHumanReadableCopyright':'Arcana · Unofficial MTG Arena companion. Magic: The Gathering is a trademark of Wizards of the Coast.'}
  with (APP/'Contents/Info.plist').open('wb') as handle:plistlib.dump(info,handle)
  iconset=ROOT/'build/Arcana.iconset';iconset.mkdir(exist_ok=True)
  run('xcrun','swiftc','-module-cache-path',str(ROOT/'build/module-cache'),str(ROOT/'scripts/icon.swift'),'-o',str(ROOT/'build/make-icon'))
